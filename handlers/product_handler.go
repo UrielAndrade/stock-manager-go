@@ -11,6 +11,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// CreateProduct godoc
+// @Summary Create product
+// @Description Create a new product in inventory
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param product body models.Product true "Product data"
+// @Success 200 {object} models.Product
+// @Router /products [post]
+
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
