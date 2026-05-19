@@ -20,7 +20,6 @@ import (
 // @Param product body models.Product true "Product data"
 // @Success 200 {object} models.Product
 // @Router /products [post]
-
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
@@ -33,10 +32,28 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// GetProducts godoc
+// @Summary List products
+// @Description Get all products
+// @Tags products
+// @Produce json
+// @Success 200 {array} models.Product
+// @Router /products [get]
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(storage.Products)
 }
 
+// UpdateProduct godoc
+// @Summary Update product
+// @Description Update product by ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Param product body models.Product true "Product data"
+// @Success 200 {object} models.Product
+// @Failure 404 {string} string "not found"
+// @Router /products/{id} [put]
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
@@ -52,6 +69,15 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Produto não encontrado", http.StatusNotFound)
 }
 
+// DeleteProduct godoc
+// @Summary Delete product
+// @Description Delete product by ID
+// @Tags products
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {string} string "deleted"
+// @Failure 404 {string} string "not found"
+// @Router /products/{id} [delete]
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
