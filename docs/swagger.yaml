@@ -1,4 +1,105 @@
+definitions:
+  models.Product:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /products:
+    get:
+      description: Get all products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product in inventory
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+      summary: Create product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Delete product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: deleted
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Delete product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Update product
+      tags:
+      - products
 swagger: "2.0"
