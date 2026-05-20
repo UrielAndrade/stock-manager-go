@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"estoque-go/handlers"
+	"estoque-go/internal/database"
+	"estoque-go/internal/handlers"
+	"estoque-go/internal/models"
 
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -13,6 +15,9 @@ import (
 )
 
 func main() {
+	database.Connect()
+	database.DB.AutoMigrate(&models.Product{}, &models.Manufacturer{}, &models.User{}, &models.Employee{})
+
 	r := mux.NewRouter()
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
