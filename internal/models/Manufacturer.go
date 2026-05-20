@@ -1,9 +1,9 @@
 package models
 
 type Manufacturer struct {
-	Id            int    `json:"id" gorm:"primaryKey"`
-	Name          string `json:"name"`
-	Country       string `json:"country"`
-	Email         string `json:"email"`
-	FundationYear int    `json:"fundation_year"`
+	ID             int    `json:"id" gorm:"primaryKey;autoIncrement"`
+	Name           string `json:"name" gorm:"index"`
+	Country        string `json:"country" gorm:"index"`
+	Email          string `json:"email" gorm:"unique"`
+	FoundationYear int    `json:"foundation_year" gorm:"index"`
 }
