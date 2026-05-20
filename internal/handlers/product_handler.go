@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"estoque-go/models"
-	"estoque-go/storage"
+	"estoque-go/internal/models"
 
 	"github.com/gorilla/mux"
 )
