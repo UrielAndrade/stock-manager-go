@@ -12,15 +12,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// CreateProduct godoc
-// @Summary Create product
-// @Description Create a new product in inventory
-// @Tags products
+// CreateUser godoc
+// @Summary Create user
+// @Description Create a new user
+// @Tags users
 // @Accept json
 // @Produce json
-// @Param product body models.Product true "Product data"
-// @Success 200 {object} models.Product
-// @Router /products [post]
+// @Param user body dtos.CreateUserDTO true "User data"
+// @Success 200 {object} models.User
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var input dtos.CreateUserDTO
@@ -45,13 +47,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-// GetProducts godoc
-// @Summary List products
-// @Description Get all products
-// @Tags products
+// GetUsers godoc
+// @Summary List users
+// @Description Get all users
+// @Tags users
 // @Produce json
-// @Success 200 {array} models.Product
-// @Router /products [get]
+// @Success 200 {array} models.User
+// @Failure 500 {string} string "Internal server error"
+// @Router /users [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	var users []models.User
 	if erro := database.DB.Find(&users).Error; erro != nil {
@@ -61,17 +64,19 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// UpdateProduct godoc
-// @Summary Update product
-// @Description Update product by ID
-// @Tags products
+// UpdateUser godoc
+// @Summary Update user
+// @Description Update user by ID
+// @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "Product ID"
-// @Param product body models.Product true "Product data"
-// @Success 200 {object} models.Product
-// @Failure 404 {string} string "not found"
-// @Router /products/{id} [put]
+// @Param id path int true "User ID"
+// @Param user body models.User true "User data"
+// @Success 200 {object} models.User
+// @Failure 404 {string} string "User not found"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /users/{id} [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
@@ -95,15 +100,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-// DeleteProduct godoc
-// @Summary Delete product
-// @Description Delete product by ID
-// @Tags products
+// DeleteUser godoc
+// @Summary Delete user
+// @Description Delete user by ID
+// @Tags users
 // @Produce json
-// @Param id path int true "Product ID"
+// @Param id path int true "User ID"
 // @Success 200 {string} string "deleted"
-// @Failure 404 {string} string "not found"
-// @Router /products/{id} [delete]
+// @Failure 500 {string} string "Internal server error"
+// @Router /users/{id} [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 

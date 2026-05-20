@@ -1,7 +1,54 @@
 definitions:
+  dtos.CreateUserDTO:
+    properties:
+      address:
+        example: 123 Main St, City, Country
+        type: string
+      birthday:
+        example: "2000-01-01"
+        type: string
+      cpf:
+        example: 123.456.789-00
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - address
+    - birthday
+    - cpf
+    - email
+    - name
+    - password
+    type: object
+  models.Manufacturer:
+    properties:
+      country:
+        type: string
+      email:
+        type: string
+      foundation_year:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   models.Product:
     properties:
+      brand:
+        type: string
       id:
+        type: integer
+      manufacturer:
+        $ref: '#/definitions/models.Manufacturer'
+      manufacturer_id:
         type: integer
       name:
         type: string
@@ -9,6 +56,23 @@ definitions:
         type: number
       quantity:
         type: integer
+    type: object
+  models.User:
+    properties:
+      address:
+        type: string
+      birthday:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
     type: object
 info:
   contact: {}
@@ -102,4 +166,113 @@ paths:
       summary: Update product
       tags:
       - products
+  /users:
+    get:
+      description: Get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: List users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Delete user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: deleted
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update user
+      tags:
+      - users
 swagger: "2.0"
