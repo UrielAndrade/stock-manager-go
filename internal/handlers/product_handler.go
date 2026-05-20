@@ -3,11 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
+	"estoque-go/internal/database"
 	"estoque-go/internal/models"
-
-	"github.com/gorilla/mux"
 )
 
 // CreateProduct godoc
@@ -20,14 +18,17 @@ import (
 // @Success 200 {object} models.Product
 // @Router /products [post]
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
+
 	var product models.Product
-	json.NewDecoder(r.Body).Decode(&product)
+	if erro := database.DB.Create(&product).Error; erro != nil {
+		http.Error(w, erro.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	product.ID = storage.NextID
-	storage.NextID++
-
-	storage.Products = append(storage.Products, product)
-
+	if erro := database.DB.Create(&product).Error; erro != nil {
+		http.Error(w, erro.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(product)
 }
 
@@ -39,7 +40,12 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {array} models.Product
 // @Router /products [get]
 func GetProducts(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(storage.Products)
+	var products []models.Product
+	if erro := database.DB.Find(&products).Error; erro != nil {
+		http.Error(w, erro.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(products)
 }
 
 // UpdateProduct godoc
@@ -54,18 +60,6 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "not found"
 // @Router /products/{id} [put]
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
-	for i, p := range storage.Products {
-		if p.ID == id {
-			json.NewDecoder(r.Body).Decode(&storage.Products[i])
-			storage.Products[i].ID = id
-			json.NewEncoder(w).Encode(storage.Products[i])
-			return
-		}
-	}
-
-	http.Error(w, "Produto não encontrado", http.StatusNotFound)
 }
 
 // DeleteProduct godoc
@@ -78,15 +72,4 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "not found"
 // @Router /products/{id} [delete]
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
-	for i, p := range storage.Products {
-		if p.ID == id {
-			storage.Products = append(storage.Products[:i], storage.Products[i+1:]...)
-			w.Write([]byte("Deletado com sucesso"))
-			return
-		}
-	}
-
-	http.Error(w, "Produto não encontrado", http.StatusNotFound)
 }
