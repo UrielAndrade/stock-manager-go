@@ -1,0 +1,15 @@
+# Ignore the Dockerfile and .env files
+Dockerfile
+.env
+# Ignore any local development files
+*.log
+*.tmp
+*.bak
+*.swp
+# Ignore version control directories
+.git
+.gitignore
+# Ignore any other files or directories that are not needed in the image
+node_modules
+dist
+build
