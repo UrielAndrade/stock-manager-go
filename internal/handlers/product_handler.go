@@ -3,9 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"estoque-go/internal/database"
 	"estoque-go/internal/models"
+
+	"github.com/gorilla/mux"
 )
 
 // CreateProduct godoc
@@ -60,6 +63,26 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "not found"
 // @Router /products/{id} [put]
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	var product models.Product
+	if err := database.DB.First(&product, id).Error; err != nil {
+		http.Error(w, "Produto não encontrado", http.StatusNotFound)
+		return
+	}
+
+	var input models.Product
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := database.DB.Model(&product).Updates(input).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(product)
 }
 
 // DeleteProduct godoc
@@ -72,4 +95,12 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "not found"
 // @Router /products/{id} [delete]
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	if err := database.DB.Delete(&models.Product{}, id).Error; err != nil {
+		http.Error(w, "Erro ao deletar", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("Deletado com sucesso"))
 }
