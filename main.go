@@ -26,6 +26,11 @@ func main() {
 	r.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
 	r.HandleFunc("/products/{id}", handlers.DeleteProduct).Methods("DELETE")
 
+	r.HandleFunc("/users", handlers.GetUser).Methods("GET")
+	r.HandleFunc("/users", handlers.CreateUser).Methods("POST")
+	r.HandleFunc("/users/{id}", handlers.UpdateUser).Methods("PUT")
+	r.HandleFunc("/users/{id}", handlers.DeleteUser).Methods("DELETE")
+
 	log.Println("Server rodando em :8080")
 	http.ListenAndServe(":8080", r)
 }
