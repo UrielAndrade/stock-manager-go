@@ -16,7 +16,7 @@ func Connect() {
 	err := godotenv.Load()
 
 	if err != nil {
-		log.Fatal("Erro ao carregar .env")
+		log.Println("Aviso: arquivo .env não encontrado. Usando variáveis de ambiente do sistema.")
 	}
 
 	dsn := fmt.Sprintf(
