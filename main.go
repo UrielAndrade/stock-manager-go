@@ -7,6 +7,7 @@ import (
 	"estoque-go/internal/handlers"
 	"estoque-go/internal/models"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-fuego/fuego"
 )
 
@@ -15,8 +16,12 @@ func main() {
 	database.DB.AutoMigrate(&models.Product{}, &models.Brand{}, &models.User{}, &models.Employee{})
 
 	s := fuego.NewServer(
-		fuego.WithAddr(":8080"),
+		fuego.WithAddr("0.0.0.0:8080"),
 	)
+	s.OpenAPI.Description().Servers = openapi3.Servers{
+		&openapi3.Server{URL: "/", Description: "Local server"},
+	}
+	s.OpenAPI.Config.DisableDefaultServer = true
 
 	fuego.Get(s, "/products", handlers.GetProducts)
 	fuego.Post(s, "/products", handlers.CreateProduct)
