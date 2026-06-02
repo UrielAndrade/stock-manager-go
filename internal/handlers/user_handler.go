@@ -10,10 +10,21 @@ import (
 	"github.com/go-fuego/fuego"
 )
 
-func CreateUser(c fuego.ContextWithBody[dtos.CreateUserDTO]) (models.User, error) {
+func toUserResponse(u models.User) dtos.UserResponseDTO {
+	return dtos.UserResponseDTO{
+		Id:       u.Id,
+		Name:     u.Name,
+		Email:    u.Email,
+		Birthday: u.Birthday,
+		Address:  u.Address,
+		Cpf:      u.Cpf,
+	}
+}
+
+func CreateUser(c fuego.ContextWithBody[dtos.CreateUserDTO]) (dtos.UserResponseDTO, error) {
 	input, err := c.Body()
 	if err != nil {
-		return models.User{}, fuego.BadRequestError{Err: err}
+		return dtos.UserResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
 	user := models.User{
@@ -25,46 +36,51 @@ func CreateUser(c fuego.ContextWithBody[dtos.CreateUserDTO]) (models.User, error
 		Cpf:      input.Cpf,
 	}
 
-	if erro := database.DB.Create(&user).Error; erro != nil {
-		return models.User{}, erro
+	if err := database.DB.Create(&user).Error; err != nil {
+		return dtos.UserResponseDTO{}, err
 	}
-	return user, nil
+	return toUserResponse(user), nil
 }
 
-func GetUser(c fuego.ContextNoBody) ([]models.User, error) {
+func GetUsers(c fuego.ContextNoBody) ([]dtos.UserResponseDTO, error) {
 	var users []models.User
-	if erro := database.DB.Find(&users).Error; erro != nil {
-		return nil, erro
+	if err := database.DB.Find(&users).Error; err != nil {
+		return nil, err
 	}
-	return users, nil
+
+	var response []dtos.UserResponseDTO
+	for _, u := range users {
+		response = append(response, toUserResponse(u))
+	}
+	return response, nil
 }
 
-func UpdateUser(c fuego.ContextWithBody[models.User]) (models.User, error) {
+func UpdateUser(c fuego.ContextWithBody[dtos.UpdateUserDTO]) (dtos.UserResponseDTO, error) {
 	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	var user models.User
 	if err := database.DB.First(&user, id).Error; err != nil {
-		return models.User{}, fuego.NotFoundError{Err: err}
+		return dtos.UserResponseDTO{}, fuego.NotFoundError{Err: err}
 	}
 
 	input, err := c.Body()
 	if err != nil {
-		return models.User{}, fuego.BadRequestError{Err: err}
+		return dtos.UserResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
 	if err := database.DB.Model(&user).Updates(input).Error; err != nil {
-		return models.User{}, err
+		return dtos.UserResponseDTO{}, err
 	}
 
-	return user, nil
+	return toUserResponse(user), nil
 }
 
-func DeleteUser(c fuego.ContextNoBody) (string, error) {
+func DeleteUser(c fuego.ContextNoBody) (any, error) {
 	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	if err := database.DB.Delete(&models.User{}, id).Error; err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return "Deletado com sucesso", nil
+	return map[string]string{"message": "Deletado com sucesso"}, nil
 }
