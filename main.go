@@ -12,7 +12,7 @@ import (
 
 func main() {
 	database.Connect()
-	database.DB.AutoMigrate(&models.Product{}, &models.Manufacturer{}, &models.User{}, &models.Employee{})
+	database.DB.AutoMigrate(&models.Product{}, &models.Brand{}, &models.User{}, &models.Employee{})
 
 	s := fuego.NewServer(
 		fuego.WithAddr(":8080"),
@@ -23,10 +23,15 @@ func main() {
 	fuego.Put(s, "/products/{id}", handlers.UpdateProduct)
 	fuego.Delete(s, "/products/{id}", handlers.DeleteProduct)
 
-	fuego.Get(s, "/users", handlers.GetUser)
+	fuego.Get(s, "/users", handlers.GetUsers)
 	fuego.Post(s, "/users", handlers.CreateUser)
 	fuego.Put(s, "/users/{id}", handlers.UpdateUser)
 	fuego.Delete(s, "/users/{id}", handlers.DeleteUser)
+
+	fuego.Get(s, "/brands", handlers.GetBrands)
+	fuego.Post(s, "/brands", handlers.CreateBrand)
+	fuego.Put(s, "/brands/{id}", handlers.UpdateBrand)
+	fuego.Delete(s, "/brands/{id}", handlers.DeleteBrand)
 
 	log.Println("Server rodando em :8080")
 	s.Run()
