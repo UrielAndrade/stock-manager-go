@@ -12,12 +12,11 @@ import (
 
 func toProductResponse(p models.Product) dtos.ProductResponseDTO {
 	return dtos.ProductResponseDTO{
-		ID:               p.ID,
-		IdManufacturerFk: p.IdManufacturerFk,
-		Name:             p.Name,
-		Price:            p.Price,
-		Brand:            p.Brand,
-		Quantity:         p.Quantity,
+		ID:       p.ID,
+		BrandID:  p.BrandID,
+		Name:     p.Name,
+		Price:    p.Price,
+		Quantity: p.Quantity,
 	}
 }
 
@@ -28,11 +27,10 @@ func CreateProduct(c fuego.ContextWithBody[dtos.CreateProductDTO]) (dtos.Product
 	}
 
 	product := models.Product{
-		IdManufacturerFk: input.IdManufacturerFk,
-		Name:             input.Name,
-		Price:            input.Price,
-		Brand:            input.Brand,
-		Quantity:         input.Quantity,
+		BrandID:  input.BrandID,
+		Name:     input.Name,
+		Price:    input.Price,
+		Quantity: input.Quantity,
 	}
 
 	if err := database.DB.Create(&product).Error; err != nil {
