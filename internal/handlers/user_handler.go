@@ -1,34 +1,19 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
 	"strconv"
 
 	"estoque-go/internal/database"
 	"estoque-go/internal/dtos"
 	"estoque-go/internal/models"
 
-	"github.com/gorilla/mux"
+	"github.com/go-fuego/fuego"
 )
 
-// CreateUser godoc
-// @Summary Create user
-// @Description Create a new user
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body dtos.CreateUserDTO true "User data"
-// @Success 200 {object} models.User
-// @Failure 400 {string} string "Bad request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-
-	var input dtos.CreateUserDTO
-	if erro := json.NewDecoder(r.Body).Decode(&input); erro != nil {
-		http.Error(w, erro.Error(), http.StatusBadRequest)
-		return
+func CreateUser(c fuego.ContextWithBody[dtos.CreateUserDTO]) (models.User, error) {
+	input, err := c.Body()
+	if err != nil {
+		return models.User{}, fuego.BadRequestError{Err: err}
 	}
 
 	user := models.User{
@@ -41,81 +26,45 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if erro := database.DB.Create(&user).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+		return models.User{}, erro
 	}
-	json.NewEncoder(w).Encode(user)
+	return user, nil
 }
 
-// GetUsers godoc
-// @Summary List users
-// @Description Get all users
-// @Tags users
-// @Produce json
-// @Success 200 {array} models.User
-// @Failure 500 {string} string "Internal server error"
-// @Router /users [get]
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetUser(c fuego.ContextNoBody) ([]models.User, error) {
 	var users []models.User
 	if erro := database.DB.Find(&users).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+		return nil, erro
 	}
-	json.NewEncoder(w).Encode(users)
+	return users, nil
 }
 
-// UpdateUser godoc
-// @Summary Update user
-// @Description Update user by ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Param user body models.User true "User data"
-// @Success 200 {object} models.User
-// @Failure 404 {string} string "User not found"
-// @Failure 400 {string} string "Bad request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users/{id} [put]
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func UpdateUser(c fuego.ContextWithBody[models.User]) (models.User, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	var user models.User
 	if err := database.DB.First(&user, id).Error; err != nil {
-		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
-		return
+		return models.User{}, fuego.NotFoundError{Err: err}
 	}
 
-	var input models.User
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	input, err := c.Body()
+	if err != nil {
+		return models.User{}, fuego.BadRequestError{Err: err}
 	}
 
 	if err := database.DB.Model(&user).Updates(input).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return models.User{}, err
 	}
 
-	json.NewEncoder(w).Encode(user)
+	return user, nil
 }
 
-// DeleteUser godoc
-// @Summary Delete user
-// @Description Delete user by ID
-// @Tags users
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {string} string "deleted"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users/{id} [delete]
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func DeleteUser(c fuego.ContextNoBody) (string, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	if err := database.DB.Delete(&models.User{}, id).Error; err != nil {
-		http.Error(w, "Erro ao deletar", http.StatusInternalServerError)
-		return
+		return "", err
 	}
 
-	w.Write([]byte("Deletado com sucesso"))
+	return "Deletado com sucesso", nil
 }

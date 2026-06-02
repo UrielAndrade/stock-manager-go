@@ -2,35 +2,32 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"estoque-go/internal/database"
 	"estoque-go/internal/handlers"
 	"estoque-go/internal/models"
 
-	"github.com/gorilla/mux"
-	httpSwagger "github.com/swaggo/http-swagger"
-
-	_ "estoque-go/docs"
+	"github.com/go-fuego/fuego"
 )
 
 func main() {
 	database.Connect()
 	database.DB.AutoMigrate(&models.Product{}, &models.Manufacturer{}, &models.User{}, &models.Employee{})
 
-	r := mux.NewRouter()
-	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+	s := fuego.NewServer(
+		fuego.WithAddr(":8080"),
+	)
 
-	r.HandleFunc("/products", handlers.GetProducts).Methods("GET")
-	r.HandleFunc("/products", handlers.CreateProduct).Methods("POST")
-	r.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
-	r.HandleFunc("/products/{id}", handlers.DeleteProduct).Methods("DELETE")
+	fuego.Get(s, "/products", handlers.GetProducts)
+	fuego.Post(s, "/products", handlers.CreateProduct)
+	fuego.Put(s, "/products/{id}", handlers.UpdateProduct)
+	fuego.Delete(s, "/products/{id}", handlers.DeleteProduct)
 
-	r.HandleFunc("/users", handlers.GetUser).Methods("GET")
-	r.HandleFunc("/users", handlers.CreateUser).Methods("POST")
-	r.HandleFunc("/users/{id}", handlers.UpdateUser).Methods("PUT")
-	r.HandleFunc("/users/{id}", handlers.DeleteUser).Methods("DELETE")
+	fuego.Get(s, "/users", handlers.GetUser)
+	fuego.Post(s, "/users", handlers.CreateUser)
+	fuego.Put(s, "/users/{id}", handlers.UpdateUser)
+	fuego.Delete(s, "/users/{id}", handlers.DeleteUser)
 
 	log.Println("Server rodando em :8080")
-	http.ListenAndServe(":8080", r)
+	s.Run()
 }
