@@ -3,6 +3,7 @@ module estoque-go
 go 1.25.9
 
 require (
+	github.com/getkin/kin-openapi v0.133.0
 	github.com/go-fuego/fuego v0.19.0
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.6.0
@@ -11,7 +12,6 @@ require (
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
-	github.com/getkin/kin-openapi v0.133.0 // indirect
 	github.com/go-openapi/jsonpointer v0.23.1 // indirect
 	github.com/go-openapi/swag/jsonname v0.26.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
