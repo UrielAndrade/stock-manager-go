@@ -9,7 +9,6 @@ import (
     "estoque-go/internal/domain"
     "estoque-go/internal/port"
     "estoque-go/internal/database"
-    "gorm.io/gorm"
 )
 
 type OrderService struct {
@@ -126,6 +125,11 @@ func (s *OrderService) CancelOrder(ctx context.Context, orderID uuid.UUID) (*dom
 func (s *OrderService) ListOrders(ctx context.Context, filter port.OrderFilter) ([]*domain.Order, error) {
     return s.orderRepo.List(ctx, filter)
 }
+
+func (s *OrderService) GetOrder(ctx context.Context, id uuid.UUID) (*domain.Order, error) {
+    return s.orderRepo.FindByID(ctx, id)
+}
+
 
 // Helper to marshal any struct to JSON string.
 func toJSON(v interface{}) string {
