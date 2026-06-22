@@ -20,7 +20,7 @@ const (
 )
 
 type Order struct {
-    ID          uuid.UUID   `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+    ID          uuid.UUID   `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
     UserID      uuid.UUID   `gorm:"type:uuid;not null" json:"user_id"`
     ProductID   uuid.UUID   `gorm:"type:uuid;not null" json:"product_id"`
     Quantity    int         `gorm:"not null" json:"quantity"`
