@@ -26,6 +26,16 @@ func CreateBrand(c fuego.ContextWithBody[dtos.CreateBrandDTO]) (dtos.BrandRespon
 		return dtos.BrandResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
+	// Verificar se o e-mail já existe para evitar erro de constraint no banco e pulo de ID
+	var count int64
+	database.DB.Model(&models.Brand{}).Where("email = ?", input.Email).Count(&count)
+	if count > 0 {
+		return dtos.BrandResponseDTO{}, fuego.ConflictError{
+			Title:  "Conflito de cadastro",
+			Detail: "Uma marca com este e-mail já está cadastrada",
+		}
+	}
+
 	brand := models.Brand{
 		Name:           input.Name,
 		Country:        input.Country,
