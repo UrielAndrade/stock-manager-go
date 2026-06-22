@@ -2,7 +2,7 @@ package dtos
 
 import (
     "github.com/google/uuid"
-    "stock-manager-go/internal/domain"
+    "estoque-go/internal/domain"
     "time"
 )
 
