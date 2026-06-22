@@ -3,7 +3,7 @@ package port
 import (
     "context"
     "github.com/google/uuid"
-    "stock-manager-go/internal/domain"
+    "estoque-go/internal/domain"
 )
 
 type OrderRepository interface {
