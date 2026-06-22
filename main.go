@@ -25,28 +25,35 @@ func main() {
 	}
 	s.OpenAPI.Config.DisableDefaultServer = true
 
-	fuego.Get(s, "/products", handlers.GetProducts)
-	fuego.Post(s, "/products", handlers.CreateProduct)
-	fuego.Put(s, "/products/{id}", handlers.UpdateProduct)
-	fuego.Delete(s, "/products/{id}", handlers.DeleteProduct)
+	// Product routes
+	products := fuego.Group(s, "/products")
+	fuego.Get(products, "/", handlers.GetProducts)
+	fuego.Post(products, "/", handlers.CreateProduct)
+	fuego.Put(products, "/{id}", handlers.UpdateProduct)
+	fuego.Delete(products, "/{id}", handlers.DeleteProduct)
 
 	// Order routes
+	orders := fuego.Group(s, "/orders")
 	orderHandler := handlers.NewOrderHandler(postgres.NewOrderRepository(), postgres.NewAuditRepository())
-	fuego.Post(s, "/orders", orderHandler.CreateOrder)
-	fuego.Get(s, "/orders", orderHandler.GetOrders)
-	fuego.Get(s, "/orders/{id}", orderHandler.GetOrder)
-	fuego.Put(s, "/orders/{id}/execute", orderHandler.ExecuteOrder)
-	fuego.Put(s, "/orders/{id}/cancel", orderHandler.CancelOrder)
+	fuego.Post(orders, "/", orderHandler.CreateOrder)
+	fuego.Get(orders, "/", orderHandler.GetOrders)
+	fuego.Get(orders, "/{id}", orderHandler.GetOrder)
+	fuego.Put(orders, "/{id}/execute", orderHandler.ExecuteOrder)
+	fuego.Put(orders, "/{id}/cancel", orderHandler.CancelOrder)
 
-	fuego.Get(s, "/users", handlers.GetUsers)
-	fuego.Post(s, "/users", handlers.CreateUser)
-	fuego.Put(s, "/users/{id}", handlers.UpdateUser)
-	fuego.Delete(s, "/users/{id}", handlers.DeleteUser)
+	// User routes
+	users := fuego.Group(s, "/users")
+	fuego.Get(users, "/", handlers.GetUsers)
+	fuego.Post(users, "/", handlers.CreateUser)
+	fuego.Put(users, "/{id}", handlers.UpdateUser)
+	fuego.Delete(users, "/{id}", handlers.DeleteUser)
 
-	fuego.Get(s, "/brands", handlers.GetBrands)
-	fuego.Post(s, "/brands", handlers.CreateBrand)
-	fuego.Put(s, "/brands/{id}", handlers.UpdateBrand)
-	fuego.Delete(s, "/brands/{id}", handlers.DeleteBrand)
+	// Brand routes
+	brands := fuego.Group(s, "/brands")
+	fuego.Get(brands, "/", handlers.GetBrands)
+	fuego.Post(brands, "/", handlers.CreateBrand)
+	fuego.Put(brands, "/{id}", handlers.UpdateBrand)
+	fuego.Delete(brands, "/{id}", handlers.DeleteBrand)
 
 	log.Println("Server rodando em :8080")
 	s.Run()
