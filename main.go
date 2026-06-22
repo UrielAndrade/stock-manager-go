@@ -7,6 +7,7 @@ import (
 	"estoque-go/internal/handlers"
 	"estoque-go/internal/models"
 	"estoque-go/internal/domain"
+	"estoque-go/internal/infra/postgres"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-fuego/fuego"
@@ -28,6 +29,14 @@ func main() {
 	fuego.Post(s, "/products", handlers.CreateProduct)
 	fuego.Put(s, "/products/{id}", handlers.UpdateProduct)
 	fuego.Delete(s, "/products/{id}", handlers.DeleteProduct)
+
+	// Order routes
+	orderHandler := handlers.NewOrderHandler(postgres.NewOrderRepository(), postgres.NewAuditRepository())
+	fuego.Post(s, "/orders", orderHandler.CreateOrder)
+	fuego.Get(s, "/orders", orderHandler.GetOrders)
+	fuego.Get(s, "/orders/{id}", orderHandler.GetOrder)
+	fuego.Put(s, "/orders/{id}/execute", orderHandler.ExecuteOrder)
+	fuego.Put(s, "/orders/{id}/cancel", orderHandler.CancelOrder)
 
 	fuego.Get(s, "/users", handlers.GetUsers)
 	fuego.Post(s, "/users", handlers.CreateUser)
