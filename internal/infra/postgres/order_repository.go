@@ -5,9 +5,9 @@ import (
     "errors"
     "fmt"
     "github.com/google/uuid"
-    "stock-manager-go/internal/domain"
-    "stock-manager-go/internal/port"
-    "stock-manager-go/internal/database"
+    "estoque-go/internal/domain"
+    "estoque-go/internal/port"
+    "estoque-go/internal/database"
     "gorm.io/gorm"
 )
 
