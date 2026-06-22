@@ -2,9 +2,10 @@ package postgres
 
 import (
     "context"
-    "stock-manager-go/internal/domain"
-    "stock-manager-go/internal/port"
-    "stock-manager-go/internal/database"
+    "fmt"
+    "estoque-go/internal/domain"
+    "estoque-go/internal/port"
+    "estoque-go/internal/database"
     "gorm.io/gorm"
 )
 
