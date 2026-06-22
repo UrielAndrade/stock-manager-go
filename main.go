@@ -6,6 +6,7 @@ import (
 	"estoque-go/internal/database"
 	"estoque-go/internal/handlers"
 	"estoque-go/internal/models"
+	"estoque-go/internal/domain"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-fuego/fuego"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	database.Connect()
-	database.DB.AutoMigrate(&models.Product{}, &models.Brand{}, &models.User{}, &models.Employee{})
+	database.DB.AutoMigrate(&models.Product{}, &models.Brand{}, &models.User{}, &models.Employee{}, &domain.Order{}, &domain.OrderAudit{})
 
 	s := fuego.NewServer(
 		fuego.WithAddr("0.0.0.0:8080"),
