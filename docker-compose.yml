@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # Sobrescreve as variáveis do .env para apontar para o container do banco
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=123456
+      - DB_NAME=estoque
+      - DB_SSLMODE=disable
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - estoque-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=estoque
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d estoque"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - estoque-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  estoque-network:
+    driver: bridge

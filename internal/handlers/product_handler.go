@@ -1,106 +1,84 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
 	"strconv"
 
 	"estoque-go/internal/database"
+	"estoque-go/internal/dtos"
 	"estoque-go/internal/models"
 
-	"github.com/gorilla/mux"
+	"github.com/go-fuego/fuego"
 )
 
-// CreateProduct godoc
-// @Summary Create product
-// @Description Create a new product in inventory
-// @Tags products
-// @Accept json
-// @Produce json
-// @Param product body models.Product true "Product data"
-// @Success 200 {object} models.Product
-// @Router /products [post]
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
-
-	var product models.Product
-	if erro := database.DB.Create(&product).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+func toProductResponse(p models.Product) dtos.ProductResponseDTO {
+	return dtos.ProductResponseDTO{
+		ID:       p.ID,
+		BrandID:  p.BrandID,
+		Name:     p.Name,
+		Price:    p.Price,
+		Quantity: p.Quantity,
 	}
-
-	if erro := database.DB.Create(&product).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
-	}
-	json.NewEncoder(w).Encode(product)
 }
 
-// GetProducts godoc
-// @Summary List products
-// @Description Get all products
-// @Tags products
-// @Produce json
-// @Success 200 {array} models.Product
-// @Router /products [get]
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func CreateProduct(c fuego.ContextWithBody[dtos.CreateProductDTO]) (dtos.ProductResponseDTO, error) {
+	input, err := c.Body()
+	if err != nil {
+		return dtos.ProductResponseDTO{}, fuego.BadRequestError{Err: err}
+	}
+
+	product := models.Product{
+		BrandID:  input.BrandID,
+		Name:     input.Name,
+		Price:    input.Price,
+		Quantity: input.Quantity,
+	}
+
+	if err := database.DB.Create(&product).Error; err != nil {
+		return dtos.ProductResponseDTO{}, err
+	}
+
+	return toProductResponse(product), nil
+}
+
+func GetProducts(c fuego.ContextNoBody) ([]dtos.ProductResponseDTO, error) {
 	var products []models.Product
-	if erro := database.DB.Find(&products).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+	if err := database.DB.Find(&products).Error; err != nil {
+		return nil, err
 	}
-	json.NewEncoder(w).Encode(products)
+
+	var response []dtos.ProductResponseDTO
+	for _, p := range products {
+		response = append(response, toProductResponse(p))
+	}
+	return response, nil
 }
 
-// UpdateProduct godoc
-// @Summary Update product
-// @Description Update product by ID
-// @Tags products
-// @Accept json
-// @Produce json
-// @Param id path int true "Product ID"
-// @Param product body models.Product true "Product data"
-// @Success 200 {object} models.Product
-// @Failure 404 {string} string "not found"
-// @Router /products/{id} [put]
-func UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func UpdateProduct(c fuego.ContextWithBody[dtos.UpdateProductDTO]) (dtos.ProductResponseDTO, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	var product models.Product
 	if err := database.DB.First(&product, id).Error; err != nil {
-		http.Error(w, "Produto não encontrado", http.StatusNotFound)
-		return
+		return dtos.ProductResponseDTO{}, fuego.NotFoundError{Err: err}
 	}
 
-	var input models.Product
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	input, err := c.Body()
+	if err != nil {
+		return dtos.ProductResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
 	if err := database.DB.Model(&product).Updates(input).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return dtos.ProductResponseDTO{}, err
 	}
 
-	json.NewEncoder(w).Encode(product)
+	return toProductResponse(product), nil
 }
 
-// DeleteProduct godoc
-// @Summary Delete product
-// @Description Delete product by ID
-// @Tags products
-// @Produce json
-// @Param id path int true "Product ID"
-// @Success 200 {string} string "deleted"
-// @Failure 404 {string} string "not found"
-// @Router /products/{id} [delete]
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func DeleteProduct(c fuego.ContextNoBody) (any, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	if err := database.DB.Delete(&models.Product{}, id).Error; err != nil {
-		http.Error(w, "Erro ao deletar", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	w.Write([]byte("Deletado com sucesso"))
+	return map[string]string{"message": "Deletado com sucesso"}, nil
 }

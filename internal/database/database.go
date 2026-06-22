@@ -18,9 +18,16 @@ var DB *gorm.DB
 //   - "postgres": connects to a PostgreSQL instance (default behavior).
 //   - "sqlite": uses a local SQLite file (plug‑and‑play for Windows users).
 func Connect() {
+<<<<<<< HEAD
 	// Load .env file if present.
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file loaded, relying on environment variables")
+=======
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Println("Aviso: arquivo .env não encontrado. Usando variáveis de ambiente do sistema.")
+>>>>>>> 4c8300d5b2fdc3db10fad7ea550d3dec88f36a86
 	}
 
 	dbType := os.Getenv("DB_TYPE")

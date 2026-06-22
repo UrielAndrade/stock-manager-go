@@ -1,34 +1,30 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
 	"strconv"
 
 	"estoque-go/internal/database"
 	"estoque-go/internal/dtos"
 	"estoque-go/internal/models"
 
-	"github.com/gorilla/mux"
+	"github.com/go-fuego/fuego"
 )
 
-// CreateUser godoc
-// @Summary Create user
-// @Description Create a new user
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body dtos.CreateUserDTO true "User data"
-// @Success 200 {object} models.User
-// @Failure 400 {string} string "Bad request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func toUserResponse(u models.User) dtos.UserResponseDTO {
+	return dtos.UserResponseDTO{
+		Id:       u.Id,
+		Name:     u.Name,
+		Email:    u.Email,
+		Birthday: u.Birthday,
+		Address:  u.Address,
+		Cpf:      u.Cpf,
+	}
+}
 
-	var input dtos.CreateUserDTO
-	if erro := json.NewDecoder(r.Body).Decode(&input); erro != nil {
-		http.Error(w, erro.Error(), http.StatusBadRequest)
-		return
+func CreateUser(c fuego.ContextWithBody[dtos.CreateUserDTO]) (dtos.UserResponseDTO, error) {
+	input, err := c.Body()
+	if err != nil {
+		return dtos.UserResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
 	user := models.User{
@@ -40,82 +36,51 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Cpf:      input.Cpf,
 	}
 
-	if erro := database.DB.Create(&user).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+	if err := database.DB.Create(&user).Error; err != nil {
+		return dtos.UserResponseDTO{}, err
 	}
-	json.NewEncoder(w).Encode(user)
+	return toUserResponse(user), nil
 }
 
-// GetUsers godoc
-// @Summary List users
-// @Description Get all users
-// @Tags users
-// @Produce json
-// @Success 200 {array} models.User
-// @Failure 500 {string} string "Internal server error"
-// @Router /users [get]
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetUsers(c fuego.ContextNoBody) ([]dtos.UserResponseDTO, error) {
 	var users []models.User
-	if erro := database.DB.Find(&users).Error; erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
+	if err := database.DB.Find(&users).Error; err != nil {
+		return nil, err
 	}
-	json.NewEncoder(w).Encode(users)
+
+	var response []dtos.UserResponseDTO
+	for _, u := range users {
+		response = append(response, toUserResponse(u))
+	}
+	return response, nil
 }
 
-// UpdateUser godoc
-// @Summary Update user
-// @Description Update user by ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Param user body models.User true "User data"
-// @Success 200 {object} models.User
-// @Failure 404 {string} string "User not found"
-// @Failure 400 {string} string "Bad request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users/{id} [put]
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func UpdateUser(c fuego.ContextWithBody[dtos.UpdateUserDTO]) (dtos.UserResponseDTO, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	var user models.User
 	if err := database.DB.First(&user, id).Error; err != nil {
-		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
-		return
+		return dtos.UserResponseDTO{}, fuego.NotFoundError{Err: err}
 	}
 
-	var input models.User
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	input, err := c.Body()
+	if err != nil {
+		return dtos.UserResponseDTO{}, fuego.BadRequestError{Err: err}
 	}
 
 	if err := database.DB.Model(&user).Updates(input).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return dtos.UserResponseDTO{}, err
 	}
 
-	json.NewEncoder(w).Encode(user)
+	return toUserResponse(user), nil
 }
 
-// DeleteUser godoc
-// @Summary Delete user
-// @Description Delete user by ID
-// @Tags users
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {string} string "deleted"
-// @Failure 500 {string} string "Internal server error"
-// @Router /users/{id} [delete]
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+func DeleteUser(c fuego.ContextNoBody) (any, error) {
+	id, _ := strconv.Atoi(c.PathParam("id"))
 
 	if err := database.DB.Delete(&models.User{}, id).Error; err != nil {
-		http.Error(w, "Erro ao deletar", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	w.Write([]byte("Deletado com sucesso"))
+	return map[string]string{"message": "Deletado com sucesso"}, nil
 }

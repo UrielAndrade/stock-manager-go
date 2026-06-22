@@ -1,6 +1,6 @@
 package models
 
-type Manufacturer struct {
+type Brand struct {
 	ID             int    `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name           string `json:"name" gorm:"index"`
 	Country        string `json:"country" gorm:"index"`
