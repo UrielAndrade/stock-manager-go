@@ -1,13 +1,10 @@
 package handlers
 
 import (
-    "context"
-    "net/http"
-    "strconv"
-
-    "stock-manager-go/internal/dtos"
-    "stock-manager-go/internal/usecase"
-    "stock-manager-go/internal/port"
+    "estoque-go/internal/dtos"
+    "estoque-go/internal/usecase"
+    "estoque-go/internal/port"
+    "github.com/google/uuid"
     "github.com/go-fuego/fuego"
 )
 
@@ -83,7 +80,7 @@ func (h *OrderHandler) GetOrder(c fuego.ContextNoBody) (dtos.OrderResponseDTO, e
     if err != nil {
         return dtos.OrderResponseDTO{}, fuego.BadRequestError{Err: err}
     }
-    order, err := h.svc.orderRepo.FindByID(c.Context(), id)
+    order, err := h.svc.GetOrder(c.Context(), id)
     if err != nil {
         return dtos.OrderResponseDTO{}, fuego.NotFoundError{Err: err}
     }
