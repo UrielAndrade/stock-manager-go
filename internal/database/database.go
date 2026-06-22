@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -31,7 +32,7 @@ func Connect() {
 			sqlitePath = "stock_manager.db"
 		}
 		var err error
-        DB, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{})
+		DB, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{})
 		if err != nil {
 			log.Fatalf("Failed to open SQLite database: %v", err)
 		}
@@ -50,9 +51,19 @@ func Connect() {
 		os.Getenv("DB_SSLMODE"),
 	)
 
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	var database *gorm.DB
+	var err error
+	for i := 1; i <= 10; i++ {
+		database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		log.Printf("Aviso: tentativa %d/10 de conexão com o banco falhou: %v. Retrying in 2s...", i, err)
+		time.Sleep(2 * time.Second)
+	}
+
 	if err != nil {
-		log.Fatalf("Erro ao conectar no banco PostgreSQL: %v", err)
+		log.Fatalf("Erro ao conectar no banco PostgreSQL após 10 tentativas: %v", err)
 	}
 
 	DB = database
