@@ -7,8 +7,8 @@ import (
 )
 
 type CreateOrderDTO struct {
-    UserID    uuid.UUID   `json:"user_id"`
-    ProductID uuid.UUID   `json:"product_id"`
+    UserID    int         `json:"user_id"`
+    ProductID int         `json:"product_id"`
     Quantity  int         `json:"quantity"`
     Price     float64     `json:"price"`
     Type      domain.OrderType `json:"type"`
@@ -16,8 +16,8 @@ type CreateOrderDTO struct {
 
 type OrderResponseDTO struct {
     ID        uuid.UUID   `json:"id"`
-    UserID    uuid.UUID   `json:"user_id"`
-    ProductID uuid.UUID   `json:"product_id"`
+    UserID    int         `json:"user_id"`
+    ProductID int         `json:"product_id"`
     Quantity  int         `json:"quantity"`
     Price     float64     `json:"price"`
     Type      domain.OrderType `json:"type"`
