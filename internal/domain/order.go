@@ -21,8 +21,8 @@ const (
 
 type Order struct {
     ID          uuid.UUID   `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-    UserID      uuid.UUID   `gorm:"type:uuid;not null" json:"user_id"`
-    ProductID   uuid.UUID   `gorm:"type:uuid;not null" json:"product_id"`
+    UserID      int         `gorm:"not null" json:"user_id"`
+    ProductID   int         `gorm:"not null" json:"product_id"`
     Quantity    int         `gorm:"not null" json:"quantity"`
     Price       float64     `gorm:"not null" json:"price"`
     Type        OrderType   `gorm:"type:varchar(4);not null" json:"type"`
@@ -31,7 +31,7 @@ type Order struct {
     UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-func NewOrder(userID, productID uuid.UUID, quantity int, price float64, orderType OrderType) (*Order, error) {
+func NewOrder(userID, productID int, quantity int, price float64, orderType OrderType) (*Order, error) {
     if quantity <= 0 {
         return nil, fmt.Errorf("quantity must be greater than zero")
     }
