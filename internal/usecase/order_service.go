@@ -21,7 +21,7 @@ func NewOrderService(or port.OrderRepository, ar port.AuditRepository) *OrderSer
 }
 
 // CreateOrder creates a new order and records an audit entry.
-func (s *OrderService) CreateOrder(ctx context.Context, userID, productID uuid.UUID, quantity int, price float64, orderType domain.OrderType) (*domain.Order, error) {
+func (s *OrderService) CreateOrder(ctx context.Context, userID, productID int, quantity int, price float64, orderType domain.OrderType) (*domain.Order, error) {
     order, err := domain.NewOrder(userID, productID, quantity, price, orderType)
     if err != nil {
         return nil, err
