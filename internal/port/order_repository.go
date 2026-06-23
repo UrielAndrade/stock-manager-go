@@ -14,8 +14,8 @@ type OrderRepository interface {
 }
 
 type OrderFilter struct {
-    UserID    *uuid.UUID
-    ProductID *uuid.UUID
+    UserID    *int
+    ProductID *int
     Status    *domain.OrderStatus
     Limit     int
     Offset    int
